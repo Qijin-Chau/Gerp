@@ -8,12 +8,12 @@
 
 Compile/run:
      - Compile using
-    		make linkedList
+    	    make linkedList
             make hashTable
             make gerp
      - run executable with
-    		./linkedList
-    		./hashTable
+    	    ./linkedList
+    	    ./hashTable
             ./gerp [Directory]
 
 
@@ -234,9 +234,3 @@ Testing:
 
 	**With each test, I would valgrind as well. Except when testing with medium 
 	or large Gutenberg because I knew that would take forever.
-
-
-Note:   
-		I don't really know what to write, I do have a small question though.
-		This might be dumb but when reading in empty lines, why were
-		the line lengths said to be 1 rather than 0?
