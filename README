@@ -1,0 +1,242 @@
+/**********************************************************
+* Project 2 Part 2: Hash Table
+* Comp 15
+* README
+* Name: Qijin Chau
+* Date: 12/6/19
+*********************************************************/
+
+Compile/run:
+     - Compile using
+    		make linkedList
+            make hashTable
+            make gerp
+     - run executable with
+    		./linkedList
+    		./hashTable
+            ./gerp [Directory]
+
+
+Program Purpose:
+
+	Part 2 of Project 1 handles creating a hash table to store every single 
+	word of every single file that exists within a given directory. This
+	program teaches students about working with hash tables, hash function,
+	and data sturctures within data structures. There are many pieces to
+	a hash table and this program handles all of them to create an efficient
+	querying system that can find all the instances of a queried word and
+	print to an output file exactly in which file, line number, and the 
+	line itself that the word occurs.
+
+
+Acknowledgements: I reviewed hash tables and by going back to the links
+on the class website. Listed below:
+https://www.cs.tufts.edu/comp/15/notes/hashing/hashing1.pdf
+https://www.cs.tufts.edu/comp/15/notes/hashing/hashing2.pdf
+https://www.cs.tufts.edu/comp/15/notes/hashing/20Hashing_part_2.pdf
+
+I went into office hours to ask about tips on how to make my program faster. 
+I was told to get rid of as many for loops as possible and not store
+information more than once.
+
+
+Files: 
+
+gerp.cpp:
+        Main file should be handle reading in a file for the board 
+        and running an interactive or automatic mode. 
+
+testLL.cpp:
+        A second main file which contains and handles my testing of my linked
+        list class using user inputs from cin. 
+
+testHT.cpp
+		A third main file which contains and handles my testing of my
+		hash table without the use of any directories, instead using inputs 
+		from cin.
+
+DirNode.h:
+		Provided interface of the DirNode class.
+
+DirNode.o:
+		Provided .o file to linked my files with the DirNode class.
+
+FSTree.h
+		Provided interface of the FSTree class.
+
+FSTree.o:
+		Provided .o file to linked my files with the FSTree class.
+
+stringProcessing.h
+		Declaration of the stripNonAlphaNum function.
+
+stringProcessing.cpp
+		Implemenation of the stripNonAlphaNum function.
+
+linkedList.h
+		Interface of the linked list class. Defines a linked list and the
+		node struct that will be used.
+
+linkedList.cpp
+		Implementation of linked list class. Implements all the functions
+		declared in the linkedList.h file.
+
+hashTable.h
+		Interface of the hash table class. Defines a hash table and uses
+		the linked list class.
+
+hashTable.cpp
+		Implementation of hash table class. Implements all the functions
+		declared in the hashTable.h file.
+
+Makefile
+		Makefile for Part 2 of Project 2.
+
+
+Architectural Overview:
+	My hash table class will store a pointer. This pointer points to a linked
+	list class. Inside the constructor, a dynamic array will be created. Thus
+	my hash table will be represented by a dynamic array of linked list classes
+	which each contain a pointer to a front node. In gerp.cpp, my create
+	hash table function uses DirNode and FSTree to create a tree from a
+	directory and reach all its files in order to access each line/word in 
+	every file that exists inside a whole directory. The stripNonAlphaNum
+	function in stringProcessing.cpp is used when the user is querying for 
+	words after the whole hash table is created.
+
+
+Data Structures:
+---------------
+		The abstract data structure used for this project was a hash table.
+	A hash table is a data structure that implements an array that can map keys 
+	to values. A hash table uses a hash function to compute an index into an 
+	array of buckets from which the desired value can be found.   
+	There are a few concrete data structures available that can be used to
+	implement a hash table. I decided to use a dynamic array and linked lists.
+		I created two classes. 
+		The first class called "linkedList" serves as my linked list. The class 
+	contains all the public functions I thought were necessary like insert, 
+	getter functions, and print (for debugging). In the private section, I have 
+	a pointer to a node which will point to the front of the list and an 
+	integer list length. I defined each node to contain a key as a string, a 
+	vector of indices which will contain all the indices of a separate vector 
+	that's delcared in my "hashTable" class where the key can be found, and a 
+	pointer to the next node. 
+		The second class called "hashTable" serves as my hash table. The class 
+	contains all the public functions I thought were necessary like insert, 
+	search, search case insensitive, getter functions, and print (for debugging). 
+	In the private section, I have initial table size, max table size, and the 
+	current occupancy. In addition, there is a pointer to a linked list which I 
+	declare in the constructor to be an array of linked list classes, and a 
+	vector of strings that contains the concatenated string of the directory, 
+	the path to a file, a line, and a line number. Each line in every file,
+	has an index in this vector. One crucial function in the private section
+	is expand. Just like a dynamic array, the array for a hash table has to
+	be able to expand as well but for different reasons. Technically, you can
+	just keep adding to the linked lists so that your array never really 
+	"fills" up. However too many collisions goes against the speed advantage
+	of hash tables. Thus when the loading factor, which I declared to be 0.75,
+	is reached the array size doubles. But when expanding, every single key
+	needs to be rehashed now. This rehashing redistributes each key and reduces
+	the number of collisions.
+		What I'm submitting is actually version 2 of my design. I actually 
+	implemented a first version based on my project design however after 
+	finishing and testing it I realized it was just wayyyyy too slow. It worked 
+	fine with the small-test directory however with even the small Gutenberg, 
+	my program was just snail-like. It took roughly 3-5 seconds to process
+	a single file in small Gutenberg. Originally, I was very worried about
+	memory use so for each key I only stored a vector of paths to each file
+	it is located in and at which line number as a vector as well. However
+	when inserting and searching I realized I had to loop through the files
+	to get to the line number where the key is located. Doing this for every
+	word ended up being very very very slow. 
+		Going back to the drawing board, I realized that in my new treeTraversal
+	function, which I revamped and now called createHashTable, at one point
+	in the function I actually have everything I need to concantenate the 
+	exact output required for the word that is read in. Thus I decided to
+	create a vector in my hashTable class that would contain the whole output
+	for every single line in every single file. Then, instead of a vector
+	of paths and a vector of line numbers in each node of the linked list,
+	I just have a vector of indices of where the key pops up in the vector
+	of outputs. This way I only store integers in each node, and only store
+	each line exactly once. This actually improved my memory usage. For 
+	inserting, I stored every word exactly once however I always add an index
+	for each word, regardless if repeated in the same line. I decided to
+	deal with repeats in my search rather than insert. This way insert is very
+	fast because I use the hash function to get the index in the linked list
+	array where the key should be located which is O(1). Then, I loop through 
+	the linked list for the key, if found just push_back the index into the 
+	vector, else add a new node at the front of the list with this new key's
+	information. Even though going through the linked list is O(n), it should
+	be quick because the load factor and expanding limits the number of 
+	collisions in my hash table. For accessing, I still have exactly where to 
+	look for each key but now I have direct access to it because all the 
+	numbers stored are indices that can be accessed in O(1) time in the 
+	outputs vector. 
+
+		As explained above, the benefits of a hash table is that you can store
+	a TON of information relatively quickly and can access the desired
+	information almost instantly at O(1) time which is what an ideal
+	hash table tried to achieve.
+		There are disadvantages however because collisions in a hash table
+	are basically unavoidable. Hash tables become quite inefficient when 
+	there are many collisions.
+
+Testing:
+	Note: My testing for the stripNonAlphaNum function is explained in my 
+	README for Part 1.
+
+		My testing began with simple testing mains for both my linked list 
+	class and hash table class. The testing files are provided. They both just 
+	keep asking for words to insert while the user responds "y" when prompted 
+	if they want to continue. After each word is inserted, I have print 
+	functions in both classes for this purpose. The functions print out every 
+	single node and I just made sure by the eye if everything seemed correct.
+
+		First, after believing that my classes worked based on my separate test
+	files, I ran my program against the small-test directory. Since the number
+	of files and words were so little, I actually had print statements that 
+	let me know what every single word in every single file was and at what 
+	line. I took a picture of it and then tested my program against every
+	single word, both case sensitive and insensitve. I started off printing
+	everything to cout and just comparing my program's outputs with the
+	reference's outputs by eye, but then I changed to printing to an output 
+	file and running sort then diff against the two output files. For the
+	small-test I was mainly worried about words repeated with and without
+	different caps. For example, "Remember" and "remember", "grep grep grep",
+	and "gerp gerp gerp". Things ran pretty smoothly with the small-test
+	directory. 
+		Second, I moved on to the small Gutenberg directory. The directory was 
+	too big to do print statement for every file, so I decided to just test 
+	against random words. The first bug I realized was that my program reading 
+	in blank lines. Which was weird because I accounted for this and it worked 
+	in the small-test directory. I guess if line != "" wasn't enough. I had to 
+	add and line.length() != 1 to take care of not reading in empty lines. The 
+	second bug I realized was that for some words my search would take quite a
+	long time, roughly a 5-10 seconds. I eventually realized I has an 
+	unnecessary for loop. I essentially had two for loops, one going through
+	a whole vector and another comparing the element of the first for loop
+	with every other element in that vector. I realized the second for loop
+	was unnecessary and that I just needed to compare it with the element 
+	directly after which just requires an if statement. 
+		Third, I ran my program against the medium and large Gutenberg 
+	directories with the 
+	"echo "@q" | /usr/bin/time -v ./gerp [DirectoryToIndex]" command
+	to see the time and memory usage. After a quick anaylsis and realized I was
+	good, I began testing those directories with queries.
+	When testing against the Gutenberg directories, I would search case
+	sensitive and insensitive for commpon english words like "the", "be", "to",
+	"of", "its", "and", and "i" for my program and the reference. Again I would 
+	run sort then diff on the output files for comparison. Surprisingly, no
+	bugs came up.
+		Lastly, I tested changing directories using @f. At first, I just 
+	assumed it would work but I decided to test it just in case.
+
+	**With each test, I would valgrind as well. Except when testing with medium 
+	or large Gutenberg because I knew that would take forever.
+
+
+Note:   
+		I don't really know what to write, I do have a small question though.
+		This might be dumb but when reading in empty lines, why were
+		the line lengths said to be 1 rather than 0?
